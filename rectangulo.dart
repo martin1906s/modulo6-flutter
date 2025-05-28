@@ -9,10 +9,7 @@ class Rectangulo{
     return 2*base+2*altura;
   }
 
-  Rectangulo(int base, int altura){
-    this.base = base;
-    this.altura = altura;
-  }
+  Rectangulo(this.base, this.altura);
 }
 
 void main(){
