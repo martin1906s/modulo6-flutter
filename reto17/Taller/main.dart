@@ -18,4 +18,5 @@ void main() {
   vehiculo2.resumen();
 
   print('Total de Reparaciones: ${Taller.obtenerReparaciones()}');
-}
+} 
+ 

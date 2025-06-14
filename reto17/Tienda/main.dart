@@ -12,5 +12,5 @@ void main(){
   producto2.resumen();
 
   print('Total Ventas: ${Tienda.obtenerVentas()}');
-  
+   
 }
