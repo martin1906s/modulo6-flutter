@@ -25,7 +25,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _deleteBook(int id) async {
+  void _deleteBook(String id) async {
     await DatabaseHelper().deleteBook(id);
     _refreshList();
   }
@@ -33,7 +33,18 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Mi Biblioteca')),
+      appBar: AppBar(
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Mi Biblioteca'),
+            GestureDetector(
+              child: Icon(Icons.refresh_rounded),
+              onTap: () => _refreshList(),
+            ),
+          ],
+        ),
+      ),
       body: FutureBuilder<List<Book>>(
         future: _bookList,
         builder: (context, snapshot) {
@@ -73,7 +84,7 @@ class _HomePageState extends State<HomePage> {
             _refreshList();
           }
         },
-        child: const Icon(Icons.add) ,
+        child: const Icon(Icons.add),
       ),
     );
   }

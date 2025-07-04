@@ -1,61 +1,99 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import '../models/book.dart';
+// import 'package:sqflite/sqflite.dart';
+// import 'package:path/path.dart';
+// import '../models/book.dart';
+
+// class DatabaseHelper {
+//   static final DatabaseHelper _instance = DatabaseHelper._internal();
+//   factory DatabaseHelper() => _instance;
+//   static Database? _database;
+//   DatabaseHelper._internal();
+
+//   Future<Database> get database async {
+//     if (_database != null) return _database!;
+//     _database = await _initDatabase();
+//     return _database!;
+//   }
+
+//   //Crea la base de datos
+//   Future<Database> _initDatabase() async {
+//     String path = join(await getDatabasesPath(), 'library.db');
+//     return await openDatabase(
+//       path,
+//       version: 1,
+//       onCreate: (db, version){
+//         return db.execute('CREATE TABLE books(id INTEGER PRIMARY KEY, title TEXT, author TEXT, status TEXT, note TEXT)');
+//       }
+//     );
+//   }
+
+//   //Metodo post
+//   Future<void> insertBook(Book book) async{
+//     final db = await database;
+//     await db.insert('books', book.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+//   }
+
+//   //Metodo get
+//   Future<List<Book>> getBooks () async{
+//     final db = await database;
+//     final List<Map<String, dynamic>> maps = await db.query('books');
+//     return List.generate(maps.length, (i){
+//       return Book(
+//         id: maps[i]['id'],
+//         title: maps[i]['title'],
+//         author: maps[i]['author'],
+//         status: maps[i]['status'],
+//         note: maps[i]['note'],
+//       );
+//     });
+//   }
+
+//   //Metodo put
+//   Future<void> updateBook(Book book) async{
+//     final db = await database;
+//     await db.update('books', book.toMap(), where: 'id = ?', whereArgs: [book.id]);
+//   }
+
+//   //Metodo delete
+//   Future<void> deleteBook(int id) async{
+//     final db = await database;
+//     await db.delete('books', where: 'id = ?', whereArgs: [id]);
+//   }
+// }
+
+import 'package:biblioteca/models/book.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DatabaseHelper {
-  static final DatabaseHelper _instance = DatabaseHelper._internal();
-  factory DatabaseHelper() => _instance;
-  static Database? _database;
-  DatabaseHelper._internal();
+  static final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  static final CollectionReference librosCollection = _firestore.collection(
+    'libros',
+  );
 
-  Future<Database> get database async {
-    if (_database != null) return _database!;
-    _database = await _initDatabase();
-    return _database!;
+  Future<void> insertBook(Book book) async {
+    await librosCollection.add(book.toMap());
   }
 
-  //Crea la base de datos
-  Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), 'library.db');
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version){
-        return db.execute('CREATE TABLE books(id INTEGER PRIMARY KEY, title TEXT, author TEXT, status TEXT, note TEXT)');
-      }
-    );
-  }
-
-  //Metodo post
-  Future<void> insertBook(Book book) async{
-    final db = await database;
-    await db.insert('books', book.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
-  }
-
-  //Metodo get
-  Future<List<Book>> getBooks () async{
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query('books');
-    return List.generate(maps.length, (i){
+  Future<List<Book>> getBooks() async {
+    final snapshot = await librosCollection.get();
+    return snapshot.docs.map((doc) {
+      final data = doc.data() as Map<String, dynamic>;
       return Book(
-        id: maps[i]['id'],
-        title: maps[i]['title'],
-        author: maps[i]['author'],
-        status: maps[i]['status'],
-        note: maps[i]['note'],
+        id: doc.id,
+        title: data['titulo'] ?? '',
+        author: data['autor'] ?? '',
+        status: data['estado'] ?? '',
+        note: data['nota'] ?? '',
       );
-    });
+    }).toList();
   }
 
-  //Metodo put
-  Future<void> updateBook(Book book) async{
-    final db = await database;
-    await db.update('books', book.toMap(), where: 'id = ?', whereArgs: [book.id]);
+  Future<void> updateBook(Book book) async {
+    await librosCollection.doc(book.id).update(book.toMap());
   }
 
-  //Metodo delete
-  Future<void> deleteBook(int id) async{
-    final db = await database;
-    await db.delete('books', where: 'id = ?', whereArgs: [id]);
+  Future<void> deleteBook(String id) async {
+    await librosCollection.doc(id).delete();
   }
+
+
 }

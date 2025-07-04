@@ -6,7 +6,7 @@ class Book {
     required this.status,
     required this.note,
   });
-  final int id;
+  final String id;
   final String title;
   final String author;
   final String status;
@@ -14,11 +14,10 @@ class Book {
 
   Map<String, dynamic> toMap() {
     return {
-      "id": id,
-      'title': title,
-      'author': author,
-      'status': status,
-      'note': note,
+      'titulo': title,
+      'autor': author,
+      'estado': status,
+      'nota': note,
     };
   }
 }
